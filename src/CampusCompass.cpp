@@ -1,16 +1,73 @@
 #include "CampusCompass.h"
 
-#include <string>
-#include <regex>
-
 using namespace std;
 
-CampusCompass::CampusCompass() {
-    // initialize your object
-}
-
 bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes_filepath) {
-    // return boolean based on whether parsing was successful or not
+    
+    ifstream edgesFile(edges_filepath);
+
+    if(!edgesFile.is_open()){
+        return false;
+    }
+
+    string line;
+
+    // get past first line of csv
+    getline(edgesFile, line);
+
+    while(getline(edgesFile, line)){
+        istringstream ss(line);
+        string parse;
+
+        // location id 1
+        getline(ss, parse, ',');
+
+        
+        // location id 2
+        getline(ss, parse, ',');
+
+
+        // name 1
+        getline(ss, parse, ',');
+
+
+        // name 2
+        getline(ss, parse, ',');
+
+
+        // time
+        getline(ss, parse, ',');
+    }
+
+
+    ifstream classesFile(classes_filepath);
+    
+    if(!classesFile.is_open()){
+        return false;
+    }
+
+    getline(classesFile, line);
+
+    while(getline(classesFile, line)){
+        istringstream ss(line);
+        string parse;
+
+        // class name
+        getline(ss, parse, ',');
+
+        // class id
+        getline(ss, parse, ',');
+
+
+        // start time
+        getline(ss, parse, ',');
+
+
+        // end time
+        getline(ss, parse, ',');
+
+    }
+
     return true;
 }
 
@@ -43,12 +100,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         return false;
     }
 
-
-    // do whatever regex you need to parse validity
-    // hint: return a boolean for validation when testing. For example:
-    bool is_valid = true; // replace with your actual validity checking
-
-    return is_valid;
+    return true;
 }
 
 

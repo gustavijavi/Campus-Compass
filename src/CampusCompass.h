@@ -1,15 +1,34 @@
 #pragma once
 #include <string>
+#include <map>
+#include <set>
+#include <vector>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
+struct Student {
+
+    string name;
+    int locationId;
+    vector<string> classes;
+
+};
+
+
 class CampusCompass {
 private:
-    // Think about what member variables you need to initialize
-    // perhaps some graph representation?
+
+    map<int, vector<pair<int, int>>> graph;
+    set<pair<int, int>> closedEdges;
+    map<int, Student> students;
+    map<string, int> classLocations;
+    map<string, pair<int, int>> classTimes;
+
 public:
-    // Think about what helper functions you will need in the algorithm
-    CampusCompass(); // constructor
+
     bool ParseCSV(const string &edges_filepath, const string &classes_filepath);
     bool ParseCommand(const string &command);
+
 };

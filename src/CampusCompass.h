@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include <map>
 #include <set>
@@ -10,8 +11,13 @@ using namespace std;
 
 struct Student {
 
+    // name of student
     string name;
+    
+    // ID for where student resides
     int locationId;
+
+    // vector of classes student is in
     vector<string> classes;
 
 };
@@ -20,10 +26,19 @@ struct Student {
 class CampusCompass {
 private:
 
+    // map for the location id to its neighbors and the weights to said neighbors | location ID 1 -> vector of pairs of location ID 2 and the weight (time) to that location from location ID 1
     map<int, vector<pair<int, int>>> graph;
+
+    // set for which edges are closed
     set<pair<int, int>> closedEdges;
+
+    // map for the students | UF ID -> Student struct
     map<int, Student> students;
+
+    // map from class name to its location ID | class name -> location ID
     map<string, int> classLocations;
+
+    // map from class name to its scheduled time in minutes | class name -> pair of times in minutes
     map<string, pair<int, int>> classTimes;
 
 public:

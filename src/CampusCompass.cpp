@@ -16,29 +16,30 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
     getline(edgesFile, line);
 
     while(getline(edgesFile, line)){
-        istringstream ss(line);
-        string parse;
+        stringstream ss(line);
+        string cell;
 
         // location id 1
-        getline(ss, parse, ',');
-
+        getline(ss, cell, ',');
+        int firstId = stoi(cell);
         
         // location id 2
-        getline(ss, parse, ',');
+        getline(ss, cell, ',');
+        int secondId = stoi(cell);
 
-
-        // name 1
-        getline(ss, parse, ',');
-
-
-        // name 2
-        getline(ss, parse, ',');
-
+        // name 1 and name 2 (unused)
+        getline(ss, cell, ',');
+        getline(ss, cell, ',');
 
         // time
-        getline(ss, parse, ',');
+        getline(ss, cell, ',');
+        int time = stoi(cell);
+
+        graph[firstId].push_back(make_pair(secondId, time));
+        graph[secondId].push_back(make_pair(firstId, time));
     }
 
+    edgesFile.close();
 
     ifstream classesFile(classes_filepath);
     
@@ -49,24 +50,39 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
     getline(classesFile, line);
 
     while(getline(classesFile, line)){
-        istringstream ss(line);
-        string parse;
+        stringstream ss(line);
+        string cell;
 
-        // class name
-        getline(ss, parse, ',');
+        // class code
+        getline(ss, cell, ',');
+        string classCode = cell;
 
-        // class id
-        getline(ss, parse, ',');
+        // class location ID
+        getline(ss, cell, ',');
+        int locationId = stoi(cell);
+
+        // start time (calculated into minutes for easy use later)
+        getline(ss, cell, ',');
+        int pos = cell.find(':');
+        int hours = stoi(cell.substr(0, pos));
+        int minutes = stoi(cell.substr(pos + 1));
+        int totalStartTime = hours * 60 + minutes;
 
 
-        // start time
-        getline(ss, parse, ',');
+        // end time (calculated into minutes for easy use later)
+        getline(ss, cell, ',');
+        pos = cell.find(':');
+        hours = stoi(cell.substr(0, pos));
+        minutes = stoi(cell.substr(pos + 1));
+        int totalEndTime = hours * 60 + minutes;
 
+        classLocations[classCode] = locationId;
 
-        // end time
-        getline(ss, parse, ',');
+        classTimes[classCode] = make_pair(totalStartTime, totalEndTime);
 
     }
+    
+    classesFile.close();
 
     return true;
 }
@@ -74,7 +90,33 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
 bool CampusCompass::ParseCommand(const string &command) {
 
     if (command.substr(0, 7) == "insert ") {
+
+        // find the quote locations so that you can find the name of the student
+        size_t quoteOne = command.find('"');
+        size_t quoteTwo = command.find('"', quoteOne + 1);
+
+        // if there is no quote's found or insufficient amount of quotes, it will
+        // return unsuccessful since the size_t quoteOne/quoteTwo will store an npos
+        if (quoteOne == string::npos || quoteTwo == string::npos) {
+            return false;
+        }
+
+        // stores the name
+        string name = command.substr(quoteOne + 1, quoteTwo - quoteOne - 1);
+        // stores the id as a string
+        string ufIdString = command.substr(quoteTwo + 2, 8);
+
+        // checks for whether the name or UF ID are invalid
+        if (!isValidUfId(ufIdString)) {
+            return false;
+        }
+
+        // stores ufId as an int rather than a string that was checked for validity
+        int ufId = stoi(ufIdString);
+
         
+
+
     } else if (command.substr(0, 7) == "remove ") {
         
     } else if (command.substr(0, 10) == "dropClass ") {

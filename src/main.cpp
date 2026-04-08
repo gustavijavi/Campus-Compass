@@ -11,7 +11,12 @@ int main() {
     CampusCompass compass;
 
     // ingest CSV data
-    compass.ParseCSV("data/edges.csv", "data/classes.csv");
+    if(!compass.ParseCSV("data/edges.csv", "data/classes.csv")){
+
+        cout << "Failed to open files" << endl;
+        return 0;
+
+    }
 
     int numCommands;
     string command;
@@ -21,7 +26,9 @@ int main() {
     for (int i = 0; i < numCommands; i++) {
         getline(cin, command);
 
-        compass.ParseCommand(command);
+        if(!compass.ParseCommand(command)){
+            cout << "unsuccessful" << endl;
+        }
     }
     return 0;
 }

@@ -16,7 +16,7 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
     getline(edgesFile, line);
 
     while(getline(edgesFile, line)){
-        stringstream ss(line);
+        istringstream ss(line);
         string cell;
 
         // location id 1
@@ -50,7 +50,7 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
     getline(classesFile, line);
 
     while(getline(classesFile, line)){
-        stringstream ss(line);
+        istringstream ss(line);
         string cell;
 
         // class code
@@ -103,10 +103,21 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         // stores the name
         string name = command.substr(quoteOne + 1, quoteTwo - quoteOne - 1);
-        // stores the id as a string
-        string ufIdString = command.substr(quoteTwo + 2, 8);
+        
+        // store the rest of the command inputted by the user
+        string rest = command.substr(quoteTwo + 2);
+        istringstream ss(rest);
+        
+        // create variables for the UF ID, location ID, and the number of classes the user states they'll be inputting
+        string ufIdString;
+        int locationId, numClasses;
 
-        // checks for whether the name or UF ID are invalid
+        // if it doesn't follow the correct command guidelines, it will not go through
+        if(!(ss >> ufIdString >> locationId >> numClasses)){
+            return false;
+        }
+
+        // checks for whether UF ID is invalid
         if (!isValidUfId(ufIdString)) {
             return false;
         }
@@ -114,8 +125,48 @@ bool CampusCompass::ParseCommand(const string &command) {
         // stores ufId as an int rather than a string that was checked for validity
         int ufId = stoi(ufIdString);
 
-        
+        // if the UF ID is not in the map for students or if the location ID is not valid, return false
+        if(students.count(ufId) == 1 || graph.count(locationId) == 0){
+            return false;
+        }
 
+        // initialize variables for class codes vector and class code that will be taken in from command
+        vector<string> classCodes;
+        string classCode;
+
+        // pushing back class codes to be put into student struct
+        for(int i = 0; i < numClasses; i++){
+            // if there aren't enough class codes, return false
+            if(!(ss >> classCode)) {
+                return false;
+            }
+
+            // if class code is not within the directory of class codes, return false
+            if(classLocations.count(classCode) == 0) {
+                return false;
+            }
+
+            classCodes.push_back(classCode);
+        }
+
+        string extra;
+        if(ss >> extra) {
+            return false; // in case there are more classes than initially input by user
+        }
+
+        // create student struct
+        Student ufStudent;
+
+        // set variables
+        ufStudent.name = name;
+        ufStudent.locationId = locationId;
+        ufStudent.classes = classCodes;
+        
+        // add to students map within object
+        students[ufId] = ufStudent;
+
+        // print successful
+        cout << "successful" << endl;
 
     } else if (command.substr(0, 7) == "remove ") {
         

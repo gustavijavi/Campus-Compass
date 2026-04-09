@@ -2,6 +2,22 @@
 
 using namespace std;
 
+
+// helper function to see if the name has only numbers and is a length of 8
+bool isValidUfId(const string& ufId) {
+    if (ufId.length() != 8) {
+        return false;
+    }
+
+    for (char c : ufId) {
+        if (!isdigit(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes_filepath) {
     
     ifstream edgesFile(edges_filepath);
@@ -170,12 +186,150 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     } else if (command.substr(0, 7) == "remove ") {
         
+        // store UF ID inputted after remove command
+        string ufId = command.substr(7);
+
+        // if it's not a valid UF ID (wrong length or uses letter), return false
+        if(!isValidUfId(ufId)){
+            return false;
+        }
+
+        // if it's not a student already a part of the map of students, return false
+        if(students.count(stoi(ufId)) == 0){
+            return false;
+        }
+
+        // erase student from map using their UF ID
+        students.erase(stoi(ufId));
+
+        // print successful
+        cout << "successful" << endl;
+
     } else if (command.substr(0, 10) == "dropClass ") {
         
+        // store the rest of the command inputted by the user
+        string rest = command.substr(10);
+        string extra;
+        istringstream ss(rest);
+
+        // strings for storing the UF ID and class code inputted by user command
+        string ufId, classCode;
+
+        // check for if the command matches having 2 blocks of text after the initial command
+        if(!(ss >> ufId >> classCode)){
+            return false;
+        }
+
+        // checks for whether the UF ID is valid and if the class code is also valid
+        if(!isValidUfId(ufId) || classLocations.count(classCode) == 0){
+            return false;
+        }
+
+        // checks for if there's any extra text. If there is it will return unsuccesful. Treating syntax with strictness
+        if(ss >> extra){
+            return false;
+        }
+
+        // if there is no student with the correlating UF ID return false
+        if(students.count(stoi(ufId)) == 0){
+            return false;
+        }
+
+        // boolean for if the class was successfully erased or not
+        bool erased = false;
+
+        // vector for the classes just to make text more readable
+        vector<string> &classes = students[stoi(ufId)].classes;
+
+        // looping through all the classes that the student has. If there's a hit, it erases the class, setting erased to true
+        for(int i = 0; i < classes.size(); i++){
+            if(classes[i] == classCode){
+                classes.erase(classes.begin() + i);
+                erased = true;
+                break;
+            }
+        }
+
+        // if there was no class that could be found to be erased, return false
+        if(!erased){
+            return false;
+        }
+
+        // if student has no more classes, remove the student
+        if(classes.size() == 0){
+            students.erase(stoi(ufId));
+        }
+
+        // print successful
+        cout << "successful" << endl;
+
+
     } else if (command.substr(0, 13) == "replaceClass ") {
         
+        // store the rest of the command inputted by the user
+        string rest = command.substr(13);
+        string extra;
+        istringstream ss(rest);
+
+        // strings for storing the UF ID and class code inputted by user command
+        string ufId, classCodeOne, classCodeTwo;
+
+        // check for if the command matches having 2 blocks of text after the initial command
+        if(!(ss >> ufId >> classCodeOne >> classCodeTwo)){
+            return false;
+        }
+
+        // checks for whether the UF ID is valid and if the class code is also valid
+        if(!isValidUfId(ufId) || classLocations.count(classCodeTwo) == 0){
+            return false;
+        }
+
+        // checks for if there's any extra text. If there is it will return unsuccesful. Treating syntax with strictness
+        if(ss >> extra){
+            return false;
+        }
+
+        // if there is no student with the correlating UF ID return false
+        if(students.count(stoi(ufId)) == 0){
+            return false;
+        }
+
+        // boolean for checking if student has the class to be replaced and index for that class
+        bool hasClass = false;
+        int classIndex = 0;
+
+        // vector reference for the classes the student has
+        vector<string> &classes = students[stoi(ufId)].classes;
+
+        // loops through all the students classes
+        // if student already has class being used to replace it will return false
+        // if student has class to be replaced it will set hasClass to true letting the replacement take place
+        for(int i = 0; i < classes.size(); i++){
+            if(classes[i] == classCodeTwo){
+                return false;
+            }
+            if(classes[i] == classCodeOne){
+                hasClass = true;
+                classIndex = i;
+            }
+        }
+
+        // if student doesn't have class, return false
+        if(!hasClass){
+            return false;
+        }
+
+        // replacing class
+        classes[classIndex] = classCodeTwo;
+
+        // print successful
+        cout << "successful" << endl;
+
+
     } else if (command.substr(0, 12) == "removeClass ") {
         
+        
+
     } else if (command.substr(0, 19) == "toggleEdgesClosure ") {
         
     } else if (command.substr(0, 16) == "checkEdgeStatus ") {
@@ -191,22 +345,6 @@ bool CampusCompass::ParseCommand(const string &command) {
     } else {
         // anything else unrecognized should be unsuccessful as the syntax is strict
         return false;
-    }
-
-    return true;
-}
-
-
-// helper function to see if the name has only numbers and is a length of 8
-bool isValidUfId(const string& ufId) {
-    if (ufId.length() != 8) {
-        return false;
-    }
-
-    for (char c : ufId) {
-        if (!isdigit(c)) {
-            return false;
-        }
     }
 
     return true;

@@ -328,10 +328,73 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     } else if (command.substr(0, 12) == "removeClass ") {
         
-        
+        // store the rest of the command inputted by the user
+        string rest = command.substr(12);
+        string extra;
+        istringstream ss(rest);
+
+        // strings for storing class code inputted by user command
+        string classCode;
+
+        // check for if the command matches having 2 blocks of text after the initial command
+        if(!(ss >> classCode)){
+            return false;
+        }
+
+        // checks for whether the UF ID is valid and if the class code is also valid
+        if(classLocations.count(classCode) == 0){
+            return false;
+        }
+
+        // checks for if there's any extra text. If there is it will return unsuccesful. Treating syntax with strictness
+        if(ss >> extra){
+            return false;
+        }
+
+        // initializing variable for amount of classes removed
+        int classCount = 0;
+
+        vector<int> studentsToRemove;
+
+        // traversing through all the students within map
+        for(auto &pair : students){
+            
+            // reference to classes each student has
+            vector<string> &classes = pair.second.classes;
+
+            // traversing through all the classes each student has
+            for(int i = 0; i < classes.size(); i++){
+                // if student has the classCode inputted to remove, it is removed
+                if(classes[i] == classCode){
+                    classes.erase(classes.begin() + i);
+                    classCount++;
+                    break;
+                }
+            }
+
+            // if student has no more classes, remove the student
+            if(classes.size() == 0){
+                studentsToRemove.push_back(pair.first);
+            }
+        }
+
+        for(int id : studentsToRemove){
+            students.erase(id);
+        }
+
+        // if no classes were removed from any student, return false
+        if(classCount == 0){
+            return false;
+        }
+
+        // print how many classes were removed
+        cout << classCount << endl;
+
 
     } else if (command.substr(0, 19) == "toggleEdgesClosure ") {
         
+        
+
     } else if (command.substr(0, 16) == "checkEdgeStatus ") {
         
     } else if (command.substr(0, 12) == "isConnected ") {

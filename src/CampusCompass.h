@@ -48,7 +48,7 @@ private:
 
 public:
 
-    bool ParseCSV(const string &edges_filepath, const string &classes_filepath);
-    bool ParseCommand(const string &command);
+    bool ParseCSV(const string &edges_filepath, const string &classes_filepath); // parses CSV into the private data
+    bool ParseCommand(const string &command); // parses and execute commands
 
 };

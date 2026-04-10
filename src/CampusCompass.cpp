@@ -4,7 +4,7 @@ using namespace std;
 
 
 // helper function to see if the name has only numbers and is a length of 8
-bool isValidUfId(const string& ufId) {
+bool CampusCompass::isValidUfId(const string &ufId) {
     if (ufId.length() != 8) {
         return false;
     }
@@ -15,6 +15,20 @@ bool isValidUfId(const string& ufId) {
         }
     }
 
+    return true;
+}
+
+bool CampusCompass::isValidName(const string &name){
+
+    // goes through each char in name
+    for(char c : name){
+        // if char is not letter and char is not space, return false
+        if(!isalpha(c) && c != ' '){
+            return false;
+        }
+    }
+
+    // else return true
     return true;
 }
 
@@ -120,6 +134,10 @@ bool CampusCompass::ParseCommand(const string &command) {
         // stores the name
         string name = command.substr(quoteOne + 1, quoteTwo - quoteOne - 1);
         
+        if(!isValidName(name)){
+            return false;
+        }
+
         // store the rest of the command inputted by the user
         string rest = command.substr(quoteTwo + 2);
         istringstream ss(rest);
@@ -135,6 +153,10 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         // checks for whether UF ID is invalid
         if (!isValidUfId(ufIdString)) {
+            return false;
+        }
+
+        if(numClasses < 1 || numClasses > 6){
             return false;
         }
 
@@ -160,6 +182,12 @@ bool CampusCompass::ParseCommand(const string &command) {
             // if class code is not within the directory of class codes, return false
             if(classLocations.count(classCode) == 0) {
                 return false;
+            }
+
+            for(const string &code : classCodes){
+                if(classCode == code){
+                    return false;
+                }
             }
 
             classCodes.push_back(classCode);
@@ -271,10 +299,10 @@ bool CampusCompass::ParseCommand(const string &command) {
         string extra;
         istringstream ss(rest);
 
-        // strings for storing the UF ID and class code inputted by user command
+        // strings for storing the UF ID and class codes inputted by user command
         string ufId, classCodeOne, classCodeTwo;
 
-        // check for if the command matches having 2 blocks of text after the initial command
+        // check for if the command matches having 3 blocks of text after the initial command
         if(!(ss >> ufId >> classCodeOne >> classCodeTwo)){
             return false;
         }
@@ -372,12 +400,13 @@ bool CampusCompass::ParseCommand(const string &command) {
                 }
             }
 
-            // if student has no more classes, remove the student
+            // if student has no more classes, append student to be removed
             if(classes.size() == 0){
                 studentsToRemove.push_back(pair.first);
             }
         }
 
+        // iterate through the UF ID's of students who have no classes left, remove them
         for(int id : studentsToRemove){
             students.erase(id);
         }
@@ -393,10 +422,111 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     } else if (command.substr(0, 19) == "toggleEdgesClosure ") {
         
-        
+        // store the rest of the command inputted by the user
+        string rest = command.substr(19);
+        string extra;
+        istringstream ss(rest);
+
+        // int for storing num edges to be toggled
+        int numEdges;
+
+        // checks for if the command has a block for numEdges after initial command
+        if(!(ss >> numEdges)){
+            return false;
+        }
+
+        int locationOne, locationTwo;
+
+        for(int i = 0; i < numEdges; i++){
+            if(!(ss >> locationOne >> locationTwo)){
+                return false;
+            }
+
+            if(!graph.count(locationOne)){
+                return false;
+            }
+
+            bool isEdge = false;
+
+            for(int i = 0; i < graph[locationOne].size(); i++){
+                if(graph[locationOne][i].first == locationTwo){
+                    isEdge = true;
+                }
+            }
+
+            if(!isEdge){
+                return false;
+            }
+
+            pair<int, int> edgeOne = make_pair(locationOne, locationTwo);
+            pair<int, int> edgeTwo = make_pair(locationTwo, locationOne);
+
+            if(closedEdges.count(edgeOne)){
+                closedEdges.erase(edgeOne);
+                closedEdges.erase(edgeTwo);
+            } else {
+                closedEdges.insert(edgeOne);
+                closedEdges.insert(edgeTwo);
+            }
+        }
+
+        // checks for if there's any extra text. If there is it will return unsuccesful. Treating syntax with strictness
+        if(ss >> extra){
+            return false;
+        }
+
+        cout << "successful" << endl;
 
     } else if (command.substr(0, 16) == "checkEdgeStatus ") {
         
+        string rest = command.substr(16);
+        string extra;
+        istringstream ss(rest);
+
+        // ints for storing location ID's given by command
+        int locationOne, locationTwo;
+
+        // checks for if the command has a block for numEdges after initial command
+        if(!(ss >> locationOne >> locationTwo)){
+            return false;
+        }
+
+        // checks if theres any extra text to return false
+        if(ss >> extra){
+            return false;
+        }
+
+        // checks if graph even has first location inputted
+        if(graph.count(locationOne) == 0){
+            return false;
+        }
+
+        // boolean for checker if it's a valid edge being inputted
+        bool isEdge = false;
+
+        // iterating through all edges from locationOne inputted to see if there exists an edge between location one and location two
+        for(int i = 0; i < graph[locationOne].size(); i++){
+            if(graph[locationOne][i].first == locationTwo){
+                isEdge = true;
+            }
+        }
+
+        // if it's not a valid edge print DNE
+        if(!isEdge){
+            cout << "DNE" << endl;
+            return true;
+        }
+
+        // create pair for edge
+        pair<int, int> edge = make_pair(locationOne, locationTwo);
+
+        // if edge is not within closedEdges set, print open, otherwise print closed
+        if(closedEdges.count(edge) == 0){
+            cout << "open" << endl;
+        } else {
+            cout << "closed" << endl;
+        }
+
     } else if (command.substr(0, 12) == "isConnected ") {
         
     } else if (command.substr(0, 19) == "printShortestEdges "){

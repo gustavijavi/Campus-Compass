@@ -41,6 +41,11 @@ private:
     // map from class code to its scheduled time in minutes | class code -> pair of times in minutes
     map<string, pair<int, int>> classTimes;
 
+
+    // helper functions:
+    bool isValidUfId(const string &ufId); // checks if UF ID is valid
+    bool isValidName(const string &name); // checks if name is valid
+
 public:
 
     bool ParseCSV(const string &edges_filepath, const string &classes_filepath);

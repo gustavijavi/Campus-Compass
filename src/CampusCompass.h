@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <queue>
 
 using namespace std;
 
@@ -45,6 +46,8 @@ private:
     // helper functions:
     bool isValidUfId(const string &ufId); // checks if UF ID is valid
     bool isValidName(const string &name); // checks if name is valid
+
+    bool BFS(const int source, const int dest); // BFS for checking if a path is possible
 
 public:
 

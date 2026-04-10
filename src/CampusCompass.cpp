@@ -32,6 +32,42 @@ bool CampusCompass::isValidName(const string &name){
     return true;
 }
 
+bool CampusCompass::BFS(const int source, const int dest){
+
+    if(source == dest){
+        return true;
+    }
+
+    queue<int> q;
+    set<int> visited;
+
+    q.push(source);
+    visited.insert(source);
+
+    while(!q.empty()){
+
+        int u = q.front();
+        q.pop();
+
+        for(auto pair : graph[u]){
+            if(closedEdges.count(make_pair(u, pair.first)) == 0){
+                if(pair.first == dest){
+                    return true;
+                }
+
+                if(visited.count(pair.first) == 0){
+                    q.push(pair.first);
+                    visited.insert(pair.first);
+                }
+            }
+        }
+
+    }
+
+    return false;
+
+}
+
 bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes_filepath) {
     
     ifstream edgesFile(edges_filepath);
@@ -529,6 +565,30 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     } else if (command.substr(0, 12) == "isConnected ") {
         
+        string rest = command.substr(12);
+        string extra;
+        istringstream ss(rest);
+
+        int locationOne, locationTwo;
+
+        if(!(ss >> locationOne >> locationTwo)){
+            return false;
+        }
+
+        if(ss >> extra){
+            return false;
+        }
+
+        if(graph.count(locationOne) == 0 || graph.count(locationTwo) == 0){
+            return false;
+        }
+
+        if(!BFS(locationOne, locationTwo)){
+            return false;
+        }
+
+        cout << "successful" << endl;
+
     } else if (command.substr(0, 19) == "printShortestEdges "){
 
     } else if (command.substr(0, 17) == "printStudentZone "){

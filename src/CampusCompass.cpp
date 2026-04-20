@@ -18,6 +18,7 @@ bool CampusCompass::isValidUfId(const string &ufId) {
     return true;
 }
 
+// helper function for if name is valid
 bool CampusCompass::isValidName(const string &name){
 
     // goes through each char in name
@@ -32,6 +33,7 @@ bool CampusCompass::isValidName(const string &name){
     return true;
 }
 
+// BFS algorithm
 bool CampusCompass::BFS(const int source, const int dest){
 
     if(source == dest){
@@ -65,6 +67,68 @@ bool CampusCompass::BFS(const int source, const int dest){
     }
 
     return false;
+
+}
+
+int CampusCompass::Dijkstra(const int source, const int dest){
+
+    // if there is no path from source to dest, then return -1
+    if(!BFS(source, dest)){
+        return -1;
+    }
+
+    // priority queue for a min heap so we can always grab the shortest distance from the node currently on
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
+    map<int, int> dist; // map of all distances to different nodes from source
+
+    dist[source] = 0;
+
+    // initializing all nodes in the map to basically infinity for dijkstra algorithm
+    for(const auto &pair : graph){
+        if(pair.first == source){
+            continue;
+        }
+
+        dist[pair.first] = INT_MAX;
+    }
+
+    // push the source for initialization before while loop
+    pq.push({0, source});
+
+    while(!pq.empty()){
+
+        // grab top and pop from pq
+        pair<int, int> u = pq.top();
+        pq.pop();
+
+        // if there's a old entry, skip
+        if(u.first > dist[u.second]){
+            continue;
+        }
+
+        // if we reached the dest, return it's distance to the source
+        if(u.second == dest){
+            return dist[dest];
+        }
+
+        // go through all of the nodes neighbors and check for if it's closed first before checking distances
+        for(const pair<int, int> p : graph[u.second]){
+
+            if(closedEdges.count({u.second, p.first}) != 0){
+                continue;
+            }
+
+            if (dist[p.first] > dist[u.second] + p.second){
+                dist[p.first] = dist[u.second] + p.second;
+                pq.push({dist[p.first], p.first});
+            }
+
+        }
+
+    }
+
+    return dist[dest];
 
 }
 
@@ -107,12 +171,15 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
 
     edgesFile.close();
 
+    // open classes csv file
     ifstream classesFile(classes_filepath);
     
+    // if failed to open, return false
     if(!classesFile.is_open()){
         return false;
     }
 
+    // ignore first line
     getline(classesFile, line);
 
     while(getline(classesFile, line)){
@@ -148,8 +215,10 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
 
     }
     
+    // close file
     classesFile.close();
 
+    // return true to show parsing the csv worked fine
     return true;
 }
 
@@ -591,7 +660,53 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     } else if (command.substr(0, 19) == "printShortestEdges "){
 
+        string rest = command.substr(19);
+        string extra;
+        istringstream ss(rest);
+
+        int ufId;
+
+        if(!(ss >> ufId)){
+            return false;
+        }
+
+        if(ss >> extra || students.count(ufId) == 0){
+            return false;
+        }
+
+        map<string, int> classRouteTimes;
+
+        for(const string &classCode : students[ufId].classes){
+
+            classRouteTimes[classCode] = Dijkstra(students[ufId].locationId, classLocations[classCode]);
+
+        }
+
+        cout << "Time For Shortest Edges: " << students[ufId].name << endl;
+
+        for(const auto &pair : classRouteTimes){
+            cout << pair.first << ": " << pair.second << endl;
+        }
+
+
     } else if (command.substr(0, 17) == "printStudentZone "){
+
+        string rest = command.substr(19);
+        string extra;
+        istringstream ss(rest);
+
+        int ufId;
+
+        if(!(ss >> ufId)){
+            return false;
+        }
+
+        if(ss >> extra || students.count(ufId) == 0){
+            return false;
+        }
+
+        
+
 
     } else if (command.substr(0, 15) == "verifySchedule ") {
 

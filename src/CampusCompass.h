@@ -49,7 +49,7 @@ private:
 
     bool BFS(const int source, const int dest); // BFS for checking if a path is possible
     pair<int, vector<int>> Dijkstra(const int source, const int dest); // Dijkstra's for getting shortest route from source to dest
-    int Prim(set<int> shortestPathNodes); // Prims for getting the student's "zone" for printStudentZone
+    int Prim(set<int> subGraphNodes, const int source); // Prims for getting the student's "zone" for printStudentZone
 
 public:
 

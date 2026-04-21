@@ -18,14 +18,16 @@ int main() {
 
     }
 
-    int numCommands;
-    string command;
-    cin >> numCommands;
+    int numCommands; // num of commands that will be made
+    string command; // string for the actual command
+    cin >> numCommands; // take in the num of commands from user input
     cin.ignore(); // gets rid of the newline after the number is inputted
 
+    // loop for each command inputted by user
     for (int i = 0; i < numCommands; i++) {
-        getline(cin, command);
+        getline(cin, command); // get each command inputted by user
 
+        // if the parsing did not work via user error, print unsuccessful
         if(!compass.ParseCommand(command)){
             cout << "unsuccessful" << endl;
         }

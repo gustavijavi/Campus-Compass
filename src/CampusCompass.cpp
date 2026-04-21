@@ -145,9 +145,69 @@ pair<int, vector<int>> CampusCompass::Dijkstra(const int source, const int dest)
 }
 
 // Prim's algorithm that returns an int representing the student's zone cost utilizing Dijkstra's algorithm from before
-int Prim(set<int> shortestPathNodes){
+int CampusCompass::Prim(set<int> subGraphNodes, const int source){
 
-    
+    // intitialize zone cost to add to throughout the loops
+    int zoneCost = 0;
+
+    // set for tracking which nodes are already a part of the MST
+    set<int> MST;
+
+    // insert the source node A.K.A. the students residence into the MST and erase from the subGraph
+    MST.insert(source);
+    subGraphNodes.erase(source);
+
+    // grab the size of the sub graph as it's going to change as we erase from it
+    int size = subGraphNodes.size();
+
+    // loop through the size to get all the nodes over from the subgraph to the MST
+    for(int i = 0; i < size; i++){
+
+        // initialize the shortest distance between nodes in the subGraph
+        // and the shortest node to keep track of so we can remove it from the subgraph and add it to the MST
+        int shortestDist = INT_MAX;
+        int shortestNode = 0;
+
+        // loop through all of the MST to see all available neighbors in the subgraph
+        for(const auto &node : MST){
+
+            // loop through all the neighbors of each node in the MST
+            for(const auto &pair : graph[node]){
+
+                // if an edge is closed between the node and its neighbor, ignore it
+                if(closedEdges.count({node, pair.first}) != 0){
+                    
+                    continue;
+
+                }
+
+                // if the neighbor is within the subgraph set, check if it's the shortest distance
+                // and set it to be the shortest distance if so
+                if(subGraphNodes.count(pair.first) != 0){
+
+                    if(pair.second < shortestDist){
+
+                        shortestDist = pair.second;
+                        shortestNode = pair.first;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        // insert the shortest node to the MST and remove it from the subgraph
+        MST.insert(shortestNode);
+        subGraphNodes.erase(shortestNode);
+
+        // add to the zone cost for Prim's MST
+        zoneCost += shortestDist;
+
+    }
+
+    return zoneCost;
 
 }
 
@@ -735,10 +795,13 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
 
+        // create a set for the subgraph of nodes for the students classes
         set<int> subGraphNodes;
 
+        // loop through all the students classes
         for(string classCode : students[ufId].classes){
 
+            // loop through all the path nodes between the students residence and their class and add it to the subgraph set
             for(int pathNode : Dijkstra(students[ufId].locationId, classLocations[classCode]).second){
 
                 subGraphNodes.insert(pathNode);
@@ -747,8 +810,12 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         }
 
+        // print out the student zone cost using Prim's algorithm
+        cout << "Student Zone Cost For " << students[ufId].name << ": " << Prim(subGraphNodes, students[ufId].locationId) << endl;
 
     } else if (command.substr(0, 15) == "verifySchedule ") {
+
+
 
     } else {
         // anything else unrecognized should be unsuccessful as the syntax is strict

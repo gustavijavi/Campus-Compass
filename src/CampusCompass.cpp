@@ -864,7 +864,7 @@ bool CampusCompass::ParseCommand(const string &command) {
             int time = Dijkstra(classLocations[classesSortedVec[i]], classLocations[classesSortedVec[i + 1]]).first;
 
             // if the time between the classes is less than the time it takes to actually get there on the shortest path, return unsuccesful for those two classes
-            if((classTimes[classesSortedVec[i + 1]].first - classTimes[classesSortedVec[i]].second) < time){
+            if((classTimes[classesSortedVec[i + 1]].first - classTimes[classesSortedVec[i]].second) < time || time == -1){
 
                 cout << classesSortedVec[i] << " - " << classesSortedVec[i + 1] << ": unsuccessful" << endl;
                 continue;

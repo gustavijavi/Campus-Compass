@@ -350,7 +350,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         int ufId = stoi(ufIdString);
 
         // if the UF ID is not in the map for students or if the location ID is not valid, return false
-        if(students.count(ufId) == 1 || graph.count(locationId) == 0){
+        if(students.count(ufId) != 0 || graph.count(locationId) == 0){
             return false;
         }
 
@@ -691,8 +691,8 @@ bool CampusCompass::ParseCommand(const string &command) {
         bool isEdge = false;
 
         // iterating through all edges from locationOne inputted to see if there exists an edge between location one and location two
-        for(int i = 0; i < graph[locationOne].size(); i++){
-            if(graph[locationOne][i].first == locationTwo){
+        for(const auto &pair : graph[locationOne]){
+            if(pair.first == locationTwo){
                 isEdge = true;
             }
         }
@@ -815,7 +815,66 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     } else if (command.substr(0, 15) == "verifySchedule ") {
 
+        string rest = command.substr(15);
+        string extra;
+        istringstream ss(rest);
 
+        // int for UF ID
+        int ufId;
+
+        // grabs UF ID and if there's nothing after command, return false
+        if(!(ss >> ufId)){
+            return false;
+        }
+
+        // if there's extra jumble or UF ID does not exist, return false
+        if(ss >> extra || students.count(ufId) == 0){
+            return false;
+        }
+
+        // if student has 1 or less classes, return false for unsuccessful
+        if(students[ufId].classes.size() <= 1){
+            return false;
+        }
+
+        // i dont wanna think about doing a regular sort algorithm so ill use set instead since it auto sorts using RB Tree :3
+        set<pair<int, string>> classesSortedSet;
+
+        for(const string &classCode : students[ufId].classes){
+
+            classesSortedSet.insert({classTimes[classCode].first, classCode});
+
+        }
+
+        // pushing all of the sorted set into a vec for easy traversal
+        vector<string> classesSortedVec;
+
+        for(const auto &pair : classesSortedSet){
+
+            classesSortedVec.push_back(pair.second);
+
+        }
+
+        cout << "Schedule Check for " << students[ufId].name << endl;
+
+        // loop through all classes in the vector besides the last one
+        for(int i = 0; i < classesSortedVec.size() - 1; i++){
+
+            // find the time between each consecutive class for the student
+            int time = Dijkstra(classLocations[classesSortedVec[i]], classLocations[classesSortedVec[i + 1]]).first;
+
+            // if the time between the classes is less than the time it takes to actually get there on the shortest path, return unsuccesful for those two classes
+            if((classTimes[classesSortedVec[i + 1]].first - classTimes[classesSortedVec[i]].second) < time){
+
+                cout << classesSortedVec[i] << " - " << classesSortedVec[i + 1] << ": unsuccessful" << endl;
+                continue;
+
+            }
+
+            // print successful otherwise
+            cout << classesSortedVec[i] << " - " << classesSortedVec[i + 1] << ": successful" << endl;
+
+        }
 
     } else {
         // anything else unrecognized should be unsuccessful as the syntax is strict

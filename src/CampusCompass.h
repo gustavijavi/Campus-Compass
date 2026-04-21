@@ -48,7 +48,8 @@ private:
     bool isValidName(const string &name); // checks if name is valid
 
     bool BFS(const int source, const int dest); // BFS for checking if a path is possible
-    int Dijkstra(const int source, const int dest); // Dijkstra's for getting shortest route from source to dest
+    pair<int, vector<int>> Dijkstra(const int source, const int dest); // Dijkstra's for getting shortest route from source to dest
+    int Prim(set<int> shortestPathNodes); // Prims for getting the student's "zone" for printStudentZone
 
 public:
 

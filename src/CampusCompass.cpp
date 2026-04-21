@@ -70,17 +70,22 @@ bool CampusCompass::BFS(const int source, const int dest){
 
 }
 
-int CampusCompass::Dijkstra(const int source, const int dest){
+// Dijkstra Algorithm that returns a pair containing an int for the distance of the shortest route from source to dest
+// and containing a vector of ints for the path of the shortest route from source to dest.
+pair<int, vector<int>> CampusCompass::Dijkstra(const int source, const int dest){
 
-    // if there is no path from source to dest, then return -1
+    // if there is no path from source to dest, then return -1 and empty vector
     if(!BFS(source, dest)){
-        return -1;
+        return {-1, {}};
     }
 
     // priority queue for a min heap so we can always grab the shortest distance from the node currently on
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
     map<int, int> dist; // map of all distances to different nodes from source
+    map<int, int> parent; // map of all the parenting nodes for the shortest path
+
+    vector<int> path; // path of nodes to the dest node that is the shortest route
 
     dist[source] = 0;
 
@@ -107,9 +112,17 @@ int CampusCompass::Dijkstra(const int source, const int dest){
             continue;
         }
 
-        // if we reached the dest, return it's distance to the source
+        // if we reached the dest, find the path along the shortest route and return both the path and shortest route distance
         if(u.second == dest){
-            return dist[dest];
+            int current = dest;
+
+            while(current != source) {
+                path.push_back(current);
+                current = parent[current];
+            }
+            path.push_back(source);
+
+            return {dist[dest], path};
         }
 
         // go through all of the nodes neighbors and check for if it's closed first before checking distances
@@ -121,6 +134,7 @@ int CampusCompass::Dijkstra(const int source, const int dest){
 
             if (dist[p.first] > dist[u.second] + p.second){
                 dist[p.first] = dist[u.second] + p.second;
+                parent[p.first] = u.second;
                 pq.push({dist[p.first], p.first});
             }
 
@@ -128,14 +142,21 @@ int CampusCompass::Dijkstra(const int source, const int dest){
 
     }
 
-    return dist[dest];
+}
+
+// Prim's algorithm that returns an int representing the student's zone cost utilizing Dijkstra's algorithm from before
+int Prim(set<int> shortestPathNodes){
+
+    
 
 }
 
 bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes_filepath) {
     
+    // open edges file
     ifstream edgesFile(edges_filepath);
 
+    // if it didn't open properly, return false
     if(!edgesFile.is_open()){
         return false;
     }
@@ -664,24 +685,30 @@ bool CampusCompass::ParseCommand(const string &command) {
         string extra;
         istringstream ss(rest);
 
-        int ufId;
+        int ufId; // int for UF ID
 
+        // grabs UF ID but if nothing present after command, return false
         if(!(ss >> ufId)){
             return false;
         }
 
+        // if there is extra jumble after command or UF ID does not exist, return false
         if(ss >> extra || students.count(ufId) == 0){
             return false;
         }
 
+        // map for classes and the times to get to each class
+        // specifically using map as it sorts all the classes lexographically anyways
         map<string, int> classRouteTimes;
 
+        // for each class student has, run dijkstra's on it from the student's residence to get shortest time
         for(const string &classCode : students[ufId].classes){
 
-            classRouteTimes[classCode] = Dijkstra(students[ufId].locationId, classLocations[classCode]);
+            classRouteTimes[classCode] = Dijkstra(students[ufId].locationId, classLocations[classCode]).first;
 
         }
 
+        // print it all out
         cout << "Time For Shortest Edges: " << students[ufId].name << endl;
 
         for(const auto &pair : classRouteTimes){
@@ -691,21 +718,34 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     } else if (command.substr(0, 17) == "printStudentZone "){
 
-        string rest = command.substr(19);
+        string rest = command.substr(17);
         string extra;
         istringstream ss(rest);
 
+        // int for UF ID
         int ufId;
 
+        // grabs UF ID and if there's nothing after command, return false
         if(!(ss >> ufId)){
             return false;
         }
 
+        // if there's extra jumble or UF ID does not exist, return false
         if(ss >> extra || students.count(ufId) == 0){
             return false;
         }
 
-        
+        set<int> subGraphNodes;
+
+        for(string classCode : students[ufId].classes){
+
+            for(int pathNode : Dijkstra(students[ufId].locationId, classLocations[classCode]).second){
+
+                subGraphNodes.insert(pathNode);
+
+            }
+
+        }
 
 
     } else if (command.substr(0, 15) == "verifySchedule ") {

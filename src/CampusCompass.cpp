@@ -51,7 +51,7 @@ bool CampusCompass::bfs(const int source, const int dest){
         int u = q.front();
         q.pop();
 
-        for(auto pair : graph[u]){
+        for(const auto &pair : graph[u]){
             if(closedEdges.count(make_pair(u, pair.first)) == 0){
                 if(pair.first == dest){
                     return true;
@@ -126,7 +126,7 @@ pair<int, vector<int>> CampusCompass::dijkstra(const int source, const int dest)
         }
 
         // go through all of the nodes neighbors and check for if it's closed first before checking distances
-        for(const pair<int, int> p : graph[u.second]){
+        for(const pair<int, int> &p : graph[u.second]){
 
             if(closedEdges.count({u.second, p.first}) != 0){
                 continue;
@@ -686,7 +686,8 @@ bool CampusCompass::parseCommand(const string &command) {
 
         // checks if graph even has first location inputted
         if(graph.count(locationOne) == 0){
-            return false;
+            output << "DNE" << endl;
+            return true;
         }
 
         // boolean for checker if it's a valid edge being inputted

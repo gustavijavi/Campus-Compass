@@ -11,7 +11,7 @@ int main() {
     CampusCompass compass;
 
     // ingest CSV data
-    if(!compass.ParseCSV("data/edges.csv", "data/classes.csv")){
+    if(!compass.parseCSV("data/edges.csv", "data/classes.csv")){
 
         cout << "Failed to open files" << endl;
         return 0;
@@ -28,7 +28,7 @@ int main() {
         getline(cin, command); // get each command inputted by user
 
         // if the parsing did not work via user error, print unsuccessful
-        if(!compass.ParseCommand(command)){
+        if(!compass.parseCommand(command)){
             cout << "unsuccessful" << endl;
         }
 

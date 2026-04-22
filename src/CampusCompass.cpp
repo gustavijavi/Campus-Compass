@@ -142,6 +142,8 @@ pair<int, vector<int>> CampusCompass::dijkstra(const int source, const int dest)
 
     }
 
+    return {dist[dest], path};
+
 }
 
 // prim's algorithm that returns an int representing the student's zone cost utilizing dijkstra's algorithm from before

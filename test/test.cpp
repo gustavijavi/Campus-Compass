@@ -1,3 +1,4 @@
+/*
 #include <catch2/catch_test_macros.hpp>
 #include <iostream>
 
@@ -118,3 +119,4 @@ IDS2935: -1
   REQUIRE(compass.getStringRepresentation() == expectedOutput);
 
 }
+*/

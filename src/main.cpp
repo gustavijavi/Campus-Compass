@@ -31,6 +31,9 @@ int main() {
         if(!compass.ParseCommand(command)){
             cout << "unsuccessful" << endl;
         }
+
+        cout << compass.getStringRepresentation(); // print what ParseCommand returned in its output
+
     }
     return 0;
 }

@@ -396,7 +396,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         students[ufId] = ufStudent;
 
         // print successful
-        cout << "successful" << endl;
+        output << "successful" << endl;
 
     } else if (command.substr(0, 7) == "remove ") {
         
@@ -417,7 +417,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         students.erase(stoi(ufId));
 
         // print successful
-        cout << "successful" << endl;
+        output << "successful" << endl;
 
     } else if (command.substr(0, 10) == "dropClass ") {
         
@@ -475,7 +475,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         }
 
         // print successful
-        cout << "successful" << endl;
+        output << "successful" << endl;
 
 
     } else if (command.substr(0, 13) == "replaceClass ") {
@@ -537,7 +537,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         classes[classIndex] = classCodeTwo;
 
         // print successful
-        cout << "successful" << endl;
+        output << "successful" << endl;
 
 
     } else if (command.substr(0, 12) == "removeClass ") {
@@ -603,7 +603,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         }
 
         // print how many classes were removed
-        cout << classCount << endl;
+        output << classCount << endl;
 
 
     } else if (command.substr(0, 19) == "toggleEdgesClosure ") {
@@ -661,7 +661,7 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
 
-        cout << "successful" << endl;
+        output << "successful" << endl;
 
     } else if (command.substr(0, 16) == "checkEdgeStatus ") {
         
@@ -699,7 +699,7 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         // if it's not a valid edge print DNE
         if(!isEdge){
-            cout << "DNE" << endl;
+            output << "DNE" << endl;
             return true;
         }
 
@@ -708,9 +708,9 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         // if edge is not within closedEdges set, print open, otherwise print closed
         if(closedEdges.count(edge) == 0){
-            cout << "open" << endl;
+            output << "open" << endl;
         } else {
-            cout << "closed" << endl;
+            output << "closed" << endl;
         }
 
     } else if (command.substr(0, 12) == "isConnected ") {
@@ -737,7 +737,7 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
 
-        cout << "successful" << endl;
+        output << "successful" << endl;
 
     } else if (command.substr(0, 19) == "printShortestEdges "){
 
@@ -769,10 +769,10 @@ bool CampusCompass::ParseCommand(const string &command) {
         }
 
         // print it all out
-        cout << "Time For Shortest Edges: " << students[ufId].name << endl;
+        output << "Time For Shortest Edges: " << students[ufId].name << endl;
 
         for(const auto &pair : classRouteTimes){
-            cout << pair.first << ": " << pair.second << endl;
+            output << pair.first << ": " << pair.second << endl;
         }
 
 
@@ -811,7 +811,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         }
 
         // print out the student zone cost using Prim's algorithm
-        cout << "Student Zone Cost For " << students[ufId].name << ": " << Prim(subGraphNodes, students[ufId].locationId) << endl;
+        output << "Student Zone Cost For " << students[ufId].name << ": " << Prim(subGraphNodes, students[ufId].locationId) << endl;
 
     } else if (command.substr(0, 15) == "verifySchedule ") {
 
@@ -855,7 +855,7 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         }
 
-        cout << "Schedule Check for " << students[ufId].name << endl;
+        output << "Schedule Check for " << students[ufId].name << endl;
 
         // loop through all classes in the vector besides the last one
         for(int i = 0; i < classesSortedVec.size() - 1; i++){
@@ -866,13 +866,13 @@ bool CampusCompass::ParseCommand(const string &command) {
             // if the time between the classes is less than the time it takes to actually get there on the shortest path, return unsuccesful for those two classes
             if((classTimes[classesSortedVec[i + 1]].first - classTimes[classesSortedVec[i]].second) < time || time == -1){
 
-                cout << classesSortedVec[i] << " - " << classesSortedVec[i + 1] << ": unsuccessful" << endl;
+                output << classesSortedVec[i] << " - " << classesSortedVec[i + 1] << ": unsuccessful" << endl;
                 continue;
 
             }
 
             // print successful otherwise
-            cout << classesSortedVec[i] << " - " << classesSortedVec[i + 1] << ": successful" << endl;
+            output << classesSortedVec[i] << " - " << classesSortedVec[i + 1] << ": successful" << endl;
 
         }
 
@@ -882,4 +882,36 @@ bool CampusCompass::ParseCommand(const string &command) {
     }
 
     return true;
+}
+
+
+void CampusCompass::parseInput(const string &input) {
+
+    istringstream in(input);
+    int numCommands;
+    string command;
+    in >> numCommands;
+    in.ignore();
+
+    for(int i = 0; i < numCommands; i++){
+        
+        getline(in, command);
+        if(!ParseCommand(command)){
+
+            output << "unsuccessful" << endl;
+
+        }
+
+    }
+}
+
+string CampusCompass::getStringRepresentation(){
+
+    string result = output.str();
+
+    output.str("");
+    output.clear();
+
+    return result;
+    
 }

@@ -42,6 +42,8 @@ private:
     // map from class code to its scheduled time in minutes | class code -> pair of times in minutes
     map<string, pair<int, int>> classTimes;
 
+    // output stringstream to allow testing
+    stringstream output;
 
     // helper functions:
     bool isValidUfId(const string &ufId); // checks if UF ID is valid
@@ -55,5 +57,8 @@ public:
 
     bool ParseCSV(const string &edges_filepath, const string &classes_filepath); // parses CSV into the private data
     bool ParseCommand(const string &command); // parses and execute commands
+
+    void parseInput(const string &input); // allows parsing for test cases
+    string getStringRepresentation(); // returns string of output for tests and main.cpp
 
 };

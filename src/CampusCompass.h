@@ -49,14 +49,14 @@ private:
     bool isValidUfId(const string &ufId); // checks if UF ID is valid
     bool isValidName(const string &name); // checks if name is valid
 
-    bool BFS(const int source, const int dest); // BFS for checking if a path is possible
-    pair<int, vector<int>> Dijkstra(const int source, const int dest); // Dijkstra's for getting shortest route from source to dest
-    int Prim(set<int> subGraphNodes, const int source); // Prims for getting the student's "zone" for printStudentZone
+    bool bfs(const int source, const int dest); // BFS for checking if a path is possible
+    pair<int, vector<int>> dijkstra(const int source, const int dest); // Dijkstra's for getting shortest route from source to dest
+    int prim(set<int> subGraphNodes, const int source); // Prims for getting the student's "zone" for printStudentZone
 
 public:
 
-    bool ParseCSV(const string &edges_filepath, const string &classes_filepath); // parses CSV into the private data
-    bool ParseCommand(const string &command); // parses and execute commands
+    bool parseCSV(const string &edges_filepath, const string &classes_filepath); // parses CSV into the private data
+    bool parseCommand(const string &command); // parses and execute commands
 
     void parseInput(const string &input); // allows parsing for test cases
     string getStringRepresentation(); // returns string of output for tests and main.cpp

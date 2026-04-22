@@ -21,6 +21,7 @@ TEST_CASE("Test 2", "[tag]") {
 TEST_CASE("Example CampusCompass Output Test", "[flag]") {
   
   CampusCompass compass;
+  compass.parseCSV("data/edges.csv", "data/classes.csv");
 
   string input = R"(6
 insert "Student A" 10000001 1 1 COP3502
@@ -31,6 +32,8 @@ remove 10000001
 removeClass COP3502
 )";
 
+  compass.parseInput(input);
+
   string expectedOutput = R"(successful
 successful
 successful
@@ -39,9 +42,7 @@ unsuccessful
 2
 )";
 
-  string actualOutput;
-
-
+  string actualOutput = compass.getStringRepresentation();
 
   REQUIRE(actualOutput == expectedOutput);
 }

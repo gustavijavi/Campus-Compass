@@ -33,8 +33,8 @@ bool CampusCompass::isValidName(const string &name){
     return true;
 }
 
-// BFS algorithm
-bool CampusCompass::BFS(const int source, const int dest){
+// bfs algorithm
+bool CampusCompass::bfs(const int source, const int dest){
 
     if(source == dest){
         return true;
@@ -70,12 +70,12 @@ bool CampusCompass::BFS(const int source, const int dest){
 
 }
 
-// Dijkstra Algorithm that returns a pair containing an int for the distance of the shortest route from source to dest
+// dijkstra Algorithm that returns a pair containing an int for the distance of the shortest route from source to dest
 // and containing a vector of ints for the path of the shortest route from source to dest.
-pair<int, vector<int>> CampusCompass::Dijkstra(const int source, const int dest){
+pair<int, vector<int>> CampusCompass::dijkstra(const int source, const int dest){
 
     // if there is no path from source to dest, then return -1 and empty vector
-    if(!BFS(source, dest)){
+    if(!bfs(source, dest)){
         return {-1, {}};
     }
 
@@ -144,8 +144,8 @@ pair<int, vector<int>> CampusCompass::Dijkstra(const int source, const int dest)
 
 }
 
-// Prim's algorithm that returns an int representing the student's zone cost utilizing Dijkstra's algorithm from before
-int CampusCompass::Prim(set<int> subGraphNodes, const int source){
+// prim's algorithm that returns an int representing the student's zone cost utilizing dijkstra's algorithm from before
+int CampusCompass::prim(set<int> subGraphNodes, const int source){
 
     // intitialize zone cost to add to throughout the loops
     int zoneCost = 0;
@@ -202,7 +202,7 @@ int CampusCompass::Prim(set<int> subGraphNodes, const int source){
         MST.insert(shortestNode);
         subGraphNodes.erase(shortestNode);
 
-        // add to the zone cost for Prim's MST
+        // add to the zone cost for prim's MST
         zoneCost += shortestDist;
 
     }
@@ -211,7 +211,7 @@ int CampusCompass::Prim(set<int> subGraphNodes, const int source){
 
 }
 
-bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes_filepath) {
+bool CampusCompass::parseCSV(const string &edges_filepath, const string &classes_filepath) {
     
     // open edges file
     ifstream edgesFile(edges_filepath);
@@ -303,7 +303,7 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
     return true;
 }
 
-bool CampusCompass::ParseCommand(const string &command) {
+bool CampusCompass::parseCommand(const string &command) {
 
     if (command.substr(0, 7) == "insert ") {
 
@@ -733,7 +733,7 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
 
-        if(!BFS(locationOne, locationTwo)){
+        if(!bfs(locationOne, locationTwo)){
             return false;
         }
 
@@ -764,7 +764,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         // for each class student has, run dijkstra's on it from the student's residence to get shortest time
         for(const string &classCode : students[ufId].classes){
 
-            classRouteTimes[classCode] = Dijkstra(students[ufId].locationId, classLocations[classCode]).first;
+            classRouteTimes[classCode] = dijkstra(students[ufId].locationId, classLocations[classCode]).first;
 
         }
 
@@ -802,7 +802,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         for(string classCode : students[ufId].classes){
 
             // loop through all the path nodes between the students residence and their class and add it to the subgraph set
-            for(int pathNode : Dijkstra(students[ufId].locationId, classLocations[classCode]).second){
+            for(int pathNode : dijkstra(students[ufId].locationId, classLocations[classCode]).second){
 
                 subGraphNodes.insert(pathNode);
 
@@ -810,8 +810,8 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         }
 
-        // print out the student zone cost using Prim's algorithm
-        output << "Student Zone Cost For " << students[ufId].name << ": " << Prim(subGraphNodes, students[ufId].locationId) << endl;
+        // print out the student zone cost using prim's algorithm
+        output << "Student Zone Cost For " << students[ufId].name << ": " << prim(subGraphNodes, students[ufId].locationId) << endl;
 
     } else if (command.substr(0, 15) == "verifySchedule ") {
 
@@ -861,7 +861,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         for(int i = 0; i < classesSortedVec.size() - 1; i++){
 
             // find the time between each consecutive class for the student
-            int time = Dijkstra(classLocations[classesSortedVec[i]], classLocations[classesSortedVec[i + 1]]).first;
+            int time = dijkstra(classLocations[classesSortedVec[i]], classLocations[classesSortedVec[i + 1]]).first;
 
             // if the time between the classes is less than the time it takes to actually get there on the shortest path, return unsuccesful for those two classes
             if((classTimes[classesSortedVec[i + 1]].first - classTimes[classesSortedVec[i]].second) < time || time == -1){
@@ -896,7 +896,7 @@ void CampusCompass::parseInput(const string &input) {
     for(int i = 0; i < numCommands; i++){
         
         getline(in, command);
-        if(!ParseCommand(command)){
+        if(!parseCommand(command)){
 
             output << "unsuccessful" << endl;
 
